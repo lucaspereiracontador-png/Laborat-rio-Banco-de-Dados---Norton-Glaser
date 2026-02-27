@@ -1,0 +1,101 @@
+-- =========================
+-- TABELAS PRINCIPAIS
+-- =========================
+
+CREATE TABLE Oficina (
+    codigo INT PRIMARY KEY,
+    cnpj VARCHAR(20) UNIQUE NOT NULL,
+    nome VARCHAR(100) NOT NULL,
+    responsavel VARCHAR(100),
+    telefone VARCHAR(20),
+    email VARCHAR(100)
+);
+
+CREATE TABLE Fabricante (
+    codigo INT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    telefone VARCHAR(20),
+    email VARCHAR(100),
+    responsavel VARCHAR(100)
+);
+
+CREATE TABLE Modelo (
+    codigo_modelo INT PRIMARY KEY,
+    tipo VARCHAR(50),
+    peso DECIMAL(10,2),
+    fabricante INT,
+    horaTeste TIME,
+    FOREIGN KEY (fabricante) REFERENCES Fabricante(codigo)
+);
+
+CREATE TABLE Maquina (
+    numero_registro INT PRIMARY KEY,
+    ano_fabricacao INT,
+    horas_uso INT,
+    modelo INT,
+    FOREIGN KEY (modelo) REFERENCES Modelo(codigo_modelo)
+);
+
+CREATE TABLE Tecnico (
+    codigo_funcional INT PRIMARY KEY,
+    endereco VARCHAR(200),
+    telefone VARCHAR(20),
+    salario DECIMAL(10,2),
+    qualificacao VARCHAR(100)
+);
+
+CREATE TABLE Teste (
+    codigo INT PRIMARY KEY,
+    pontuacao DECIMAL(5,2),
+    resultado VARCHAR(100),
+    recomendacoes TEXT,
+    oficina INT,
+    FOREIGN KEY (oficina) REFERENCES Oficina(codigo)
+);
+
+-- =========================
+-- RELACIONAMENTOS N:N
+-- =========================
+
+-- Oficina acolhe modelo
+CREATE TABLE Oficina_Modelo (
+    oficina INT,
+    modelo INT,
+    PRIMARY KEY (oficina, modelo),
+    FOREIGN KEY (oficina) REFERENCES Oficina(codigo),
+    FOREIGN KEY (modelo) REFERENCES Modelo(codigo_modelo)
+);
+
+-- Tecnico trabalha oficina
+CREATE TABLE Tecnico_Oficina (
+    tecnico INT,
+    oficina INT,
+    PRIMARY KEY (tecnico, oficina),
+    FOREIGN KEY (tecnico) REFERENCES Tecnico(codigo_funcional),
+    FOREIGN KEY (oficina) REFERENCES Oficina(codigo)
+);
+
+-- Tecnico perito modelo
+CREATE TABLE Tecnico_Modelo (
+    tecnico INT,
+    modelo INT,
+    PRIMARY KEY (tecnico, modelo),
+    FOREIGN KEY (tecnico) REFERENCES Tecnico(codigo_funcional),
+    FOREIGN KEY (modelo) REFERENCES Modelo(codigo_modelo)
+);
+
+-- Tecnico faz teste
+CREATE TABLE Tecnico_Teste (
+    tecnico INT,
+    teste INT,
+    PRIMARY KEY (tecnico, teste),
+    FOREIGN KEY (tecnico) REFERENCES Tecnico(codigo_funcional),
+    FOREIGN KEY (teste) REFERENCES Teste(codigo)
+);
+
+-- =========================
+-- NOTAS
+-- =========================
+-- Oficina controla teste → representado pela FK oficina em Teste
+-- Oficina tem teste → também representado pela FK oficina em Teste
+-- Maquina possui modelo → representado pela FK modelo em Maquina
